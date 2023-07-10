@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
       title: "My Resto",
       theme: ThemeData(
         fontFamily: "Cera Pro",
-        primaryColor: Color(0xFFE85852),
+        primaryColor: Color(0xFFeea734),
       ),
       routes: {
         // 'details': (context) => Details(),

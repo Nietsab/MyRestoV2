@@ -4,7 +4,7 @@ class FoodCard extends StatelessWidget {
 
   final double width;
   final Color primaryColor;
-  final String productUrl, productName, productPrice, productRate, productClients;
+  final String productUrl, productName, productPrice;
 
 
   FoodCard({
@@ -13,8 +13,6 @@ class FoodCard extends StatelessWidget {
     required this.productUrl,
     required this.productName,
     required this.productPrice,
-    required this.productRate,
-    required this.productClients,
   });
 
   @override
@@ -36,28 +34,6 @@ class FoodCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Container(
-                alignment: Alignment.topRight,
-                child: Container(
-                  padding: const EdgeInsets.all(4.0),
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey,
-                        blurRadius: 4.0,
-                        offset: Offset(3.0, 3.0),
-                      )
-                    ],
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                  ),
-                  child: Icon(
-                    Icons.favorite,
-                    size: 17.0,
-                    color: primaryColor,
-                  ),
-                ),
-              )
             ],
           ),
           Padding(
@@ -88,7 +64,7 @@ class FoodCard extends StatelessWidget {
                         )
                       ]),
                   child: Icon(
-                    Icons.near_me,
+                    Icons.add,
                     size: 17.0,
                     color: primaryColor,
                   ),
@@ -101,13 +77,6 @@ class FoodCard extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(
-                  '$productRate \($productClients\)',
-                  style: TextStyle(
-                    fontSize: 13.0,
-                    color: Colors.grey[400],
-                  ),
-                ),
                 Text(
                   '\$ $productPrice',
                   style: TextStyle(
