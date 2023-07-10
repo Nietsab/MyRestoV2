@@ -1,7 +1,43 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:front/util/constants.dart';
 
-class Order extends StatelessWidget {
+class Order extends StatefulWidget {
   @override
+  _OrderState createState() => _OrderState();
+}
+
+class _OrderState extends State<Order> {
+  List<Map<String, dynamic>> orderItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchOrderItems(); // Appel de la fonction pour récupérer les données de l'API
+  }
+
+  Future<void> fetchOrderItems() async {
+    final url = Uri.parse(ApiConstants.baseUrl + ApiConstants.getCommand);
+    String basicAuth = 'Basic ' + base64Encode(utf8.encode('admin:admin'));
+    final response = await http.get(url, headers : {
+      'Authorization' : basicAuth,
+      'Content-Type' : 'application/json',
+    });
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      setState(() {
+        orderItems = [
+          ...List<Map<String, dynamic>>.from(data),
+        ];
+      });
+    } else {
+      print('Erreur lors de la récupération des données : ${response.statusCode}');
+    }
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
@@ -32,7 +68,7 @@ class Order extends StatelessWidget {
                         ),
                         SizedBox(height: 20),
                         Text(
-                          '50',
+                          orderItems.where((order) => order['status'] == 'PREPARE').length.toString(),
                           style: TextStyle(
                             fontSize: 40,
                             color: Colors.green,
@@ -54,47 +90,18 @@ class Order extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.all(20),
                     child: Column(
-                      children: [
-                        OrderItem(
-                          orderNumber: 'n°1515454',
-                          customerName: 'Julien Peira',
-                          items: [
-                            '1x Mousse au chocolat',
-                            '1x Burger frite',
-                            '1x Coca Cola',
-                          ],
-                        ),
-                        Divider(),
-                        OrderItem(
-                          orderNumber: 'n°1515454',
-                          customerName: 'Julien Peira',
-                          items: [
-                            '1x Mousse au chocolat',
-                            '1x Burger frite',
-                            '1x Coca Cola',
-                          ],
-                        ),
-                        Divider(),
-                        OrderItem(
-                          orderNumber: 'n°1515454',
-                          customerName: 'Julien Peira',
-                          items: [
-                            '1x Mousse au chocolat',
-                            '1x Burger frite',
-                            '1x Coca Cola',
-                          ],
-                        ),
-                        Divider(),
-                        OrderItem(
-                          orderNumber: 'n°1515454',
-                          customerName: 'Julien Peira',
-                          items: [
-                            '1x Mousse au chocolat',
-                            '1x Burger frite',
-                            '1x Coca Cola',
-                          ],
-                        ),
-                      ],
+                      children: orderItems.map((order) {
+                        if (order['status'] == 'PREPARE') {
+                          return OrderItem(
+                              orderNumber: order['id'].toString(),
+                              customerName: '${order['user']['firstname']}  ${order['user']['lastname']}',
+                              items: order['product'],
+                              status: order['status']
+                          );
+                        } else {
+                          return Container();
+                        }
+                      }).toList(),
                     ),
                   ),
                 ),
@@ -122,7 +129,7 @@ class Order extends StatelessWidget {
                         ),
                         SizedBox(height: 20),
                         Text(
-                          '50',
+                          orderItems.where((order) => order['status'] == 'SEND').length.toString(),
                           style: TextStyle(
                             fontSize: 40,
                             color: Colors.red,
@@ -145,67 +152,19 @@ class Order extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.all(20),
                     child: Column(
-                      children: [
-                        OrderItem(
-                          orderNumber: 'n°1515454',
-                          customerName: 'Julien Peira',
-                          items: [
-                            '1x Mousse au chocolat',
-                            '1x Burger frite',
-                            '1x Coca Cola',
-                          ],
-                        ),
-                        Divider(),
-                        OrderItem(
-                          orderNumber: 'n°1515454',
-                          customerName: 'Julien Peira',
-                          items: [
-                            '1x Mousse au chocolat',
-                            '1x Burger frite',
-                            '1x Coca Cola',
-                          ],
-                        ),
-                        Divider(),
-                        OrderItem(
-                          orderNumber: 'n°1515454',
-                          customerName: 'Julien Peira',
-                          items: [
-                            '1x Mousse au chocolat',
-                            '1x Burger frite',
-                            '1x Coca Cola',
-                          ],
-                        ),
-                        Divider(),
-                        OrderItem(
-                          orderNumber: 'n°1515454',
-                          customerName: 'Julien Peira',
-                          items: [
-                            '1x Mousse au chocolat',
-                            '1x Burger frite',
-                            '1x Coca Cola',
-                          ],
-                        ),
-                        Divider(),
-                        OrderItem(
-                          orderNumber: 'n°1515454',
-                          customerName: 'Julien Peira',
-                          items: [
-                            '1x Mousse au chocolat',
-                            '1x Burger frite',
-                            '1x Coca Cola',
-                          ],
-                        ),
-                        Divider(),
-                        OrderItem(
-                          orderNumber: 'n°1515454',
-                          customerName: 'Julien Peira',
-                          items: [
-                            '1x Mousse au chocolat',
-                            '1x Burger frite',
-                            '1x Coca Cola',
-                          ],
-                        ),
-                      ],
+                      children:
+                      orderItems.map((order) {
+                          if (order['status'] == 'SEND') {
+                            return OrderItem(
+                                orderNumber: order['id'].toString(),
+                                customerName: '${order['user']['firstname']}  ${order['user']['lastname']}',
+                                items: order['product'],
+                                status: order['status']
+                            );
+                          } else {
+                            return Container();
+                          }
+                        }).toList(),
                     ),
                   ),
                 ),
@@ -221,28 +180,59 @@ class Order extends StatelessWidget {
 class OrderItem extends StatelessWidget {
   final String orderNumber;
   final String customerName;
-  final List<String> items;
+  final List<dynamic> items;
+  final String status;
 
   const OrderItem({
     required this.orderNumber,
     required this.customerName,
     required this.items,
+    required this.status,
   });
+
+  void closeOrder(String orderId) async {
+    final url = Uri.parse(ApiConstants.baseUrl + ApiConstants.postCommand + '/${orderNumber}/send');
+    String basicAuth = 'Basic ' + base64Encode(utf8.encode('admin:admin'));
+
+    final response = await http.post(url, headers : {
+      'Authorization' : basicAuth,
+      'Content-Type' : 'application/json',
+    });
+
+    if (response.statusCode == 200) {
+      print('Commande ${orderNumber} fermée');
+    } else {
+      print('Erreur lors de la récupération des données : ${response.statusCode}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'COMMANDE $orderNumber $customerName',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 10),
+      children: <Widget>[
         Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: items.map((item) => Text(item)).toList(),
-        ),
+          children: [
+            Text(
+              'COMMANDE $orderNumber $customerName',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            status == 'PREPARE' ?
+            IconButton(
+                icon: Icon(Icons.close, color: Colors.red),
+                onPressed: () {
+                    closeOrder(orderNumber.toString() as String);
+                }
+            ) : Container(),
+            SizedBox(height: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: items.map((item) => Text(
+                '${item['quantity']}x ${item['name']}',
+              )).toList(),
+            ),
+          ]
+        )
       ],
     );
   }

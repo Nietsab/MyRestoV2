@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:front/app/app.dart';
-// import 'package:front/app/tabs/home/details/details.dart';
+import 'package:front/routes.dart';
 
 void main() => runApp(MyApp());
 
@@ -16,10 +15,7 @@ class MyApp extends StatelessWidget {
         fontFamily: "Cera Pro",
         primaryColor: Color(0xFFeea734),
       ),
-      routes: {
-        // 'details': (context) => Details(),
-      },
-      home: App(),
+      routes: routes,
     );
   }
 }

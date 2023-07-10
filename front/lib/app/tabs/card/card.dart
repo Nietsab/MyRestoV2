@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:front/util/constants.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -13,7 +14,7 @@ class _CardState extends State<Card> {
   List<Map<String, dynamic>> foodList = [];
 
   Future<void> fetchCardData() async {
-    final url = Uri.parse('http://localhost:8082/api/card');
+    final url = Uri.parse(ApiConstants.baseUrl + ApiConstants.getCard);
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -71,15 +72,12 @@ class _CardState extends State<Card> {
               spacing: 10.0,
               runSpacing: 10.0,
               children: foodList.map((product) {
-                return GestureDetector(
+                return InkWell(
                   onTap: () {
                     Navigator.pushNamed(
                       context,
-                      'details',
-                      arguments: {
-                        'product': product,
-                        'index': foodList.indexOf(product),
-                      },
+                      'detailProduct',
+                      arguments: product,
                     );
                   },
                   child: Hero(
