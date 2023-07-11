@@ -88,6 +88,7 @@ class _CardState extends State<Card> {
                       productName: product['name']?.toString() ?? '',
                       productPrice: product['price']?.toString() ?? '',
                       productUrl: product['image']?.toString() ?? '',
+                      productId: product['id'] ?? '',
                     ),
                   ),
                 );

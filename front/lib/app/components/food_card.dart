@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:front/app/model/foodCardModel.dart';
+import 'package:shopping_cart/shopping_cart.dart';
 
 class FoodCard extends StatelessWidget {
 
   final double width;
   final Color primaryColor;
+  final int productId;
   final String productUrl, productName, productPrice;
 
 
   FoodCard({
     required this.width,
     required this.primaryColor,
+    required this.productId,
     required this.productUrl,
     required this.productName,
     required this.productPrice,
@@ -17,6 +21,8 @@ class FoodCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final instance = ShoppingCart.getInstance<FoodCardModel>();
+
     return Container(
       width: width,
       color: Colors.white,
@@ -63,10 +69,12 @@ class FoodCard extends StatelessWidget {
                           offset: Offset(3.0, 3.0),
                         )
                       ]),
-                  child: Icon(
-                    Icons.add,
-                    size: 17.0,
-                    color: primaryColor,
+                  child: IconButton(
+                    icon: Icon(Icons.add, size: 17.0, color: primaryColor),
+                    onPressed: () {
+                      final item = FoodCardModel(name: productName, image: productUrl, id: productId, price: double.parse(productPrice));
+                      instance.addItemToCart(item);
+                    },
                   ),
                 ),
               ],

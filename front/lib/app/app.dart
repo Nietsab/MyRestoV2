@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:front/app/model/foodCardModel.dart';
 import 'package:front/app/order/order.dart';
-import 'package:front/app/tabs/cart/cart.dart';
+import 'package:front/app/tabs/cart/cart.dart' as Cart;
 import 'package:front/app/tabs/home/home.dart';
 import 'package:front/app/tabs/card/card.dart' as CardFood;
+import 'package:shopping_cart/shopping_cart.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -10,6 +12,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
+    ShoppingCart.init<FoodCardModel>();
 
     return DefaultTabController(
       length: 4,
@@ -18,7 +21,7 @@ class App extends StatelessWidget {
           children: <Widget>[
             Home(),
             CardFood.Card(),
-            Cart(),
+            Cart.Cart(),
             Order(),
           ],
         ),

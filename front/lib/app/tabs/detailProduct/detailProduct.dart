@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:front/app/model/foodCardModel.dart';
+import 'package:shopping_cart/shopping_cart.dart';
 
 class DetailProduct extends StatelessWidget {
   final product;
@@ -6,6 +8,8 @@ class DetailProduct extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final instance = ShoppingCart.getInstance<FoodCardModel>();
+
     if (product != null) {
 
       return Container(
@@ -54,11 +58,22 @@ class DetailProduct extends StatelessWidget {
               onPressed: () {
                 // Action à effectuer lors du clic sur le bouton
               },
-              child: Text(
-                'Ajouter au panier',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontFamily: 'Roboto',
+              child: GestureDetector(
+                onTap: () {
+                  final item = FoodCardModel(
+                      name: product['name'],
+                      image: product['url'],
+                      id: product['id'],
+                      price: product['price'],
+                  );
+                 instance.addItemToCart(item);
+                },
+                child: Text(
+                  'Ajouter au panier',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontFamily: 'Roboto',
+                  ),
                 ),
               ),
               style: ElevatedButton.styleFrom(

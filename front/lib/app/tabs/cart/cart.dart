@@ -1,105 +1,204 @@
+import 'dart:convert';
+import 'package:front/app/model/foodCardModel.dart';
+import 'package:shopping_cart/shopping_cart.dart';
 import 'package:flutter/material.dart';
-import 'package:front/app/components/custom_header.dart';
+import 'package:http/http.dart' as http;
+import '../../../util/constants.dart';
 
 class Cart extends StatelessWidget {
-
-  final List<Map<String, String>> foods = [
-    {
-      'name': 'Rice and meat',
-      'price': '130.00',
-      'rate': '4.8',
-      'clients': '150',
-      'image': 'images/plate-003.png'
-    },
-    {
-      'name': 'Vegan food',
-      'price': '400.00',
-      'rate': '4.2',
-      'clients': '150',
-      'image': 'images/plate-007.png'
-    },
-  ];
+  final instance = ShoppingCart.getInstance<FoodCardModel>();
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: this.foods.length,
-      itemBuilder: (BuildContext context, int index) {
-        Map<String, String> food = foods[index];
-        Color primaryColor = Theme.of(context).primaryColor;
-        return Container(
-          margin: const EdgeInsets.only(bottom: 10.0),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                'details',
-                arguments: {
-                  'product': food,
-                  'index': index,
-                },
-              );
-            },
-            child: Hero(
-              tag: 'detail_food$index',
-              child: Card(
+    List<Map<String, dynamic>> convertFoodCardModelToMap() {
+      List<Map<String, dynamic>> cartItems = [];
+      for (var item in instance.cartItems.toList()) {
+        cartItems.add({
+          'id': item.id,
+          'name': item.name,
+          'price': item.price,
+          'quantity': item.quantity,
+        });
+      }
+      return cartItems;
+    }
+
+
+    void postCommand() async {
+      var cartItems = convertFoodCardModelToMap();
+      print(jsonEncode(cartItems));
+      final url = Uri.parse(ApiConstants.baseUrl + ApiConstants.postCommand);
+      String basicAuth = 'Basic ${base64Encode(utf8.encode('admin:admin'))}';
+
+      final response = await http.post(
+        url,
+        body: jsonEncode(cartItems),
+        headers: {
+          'Authorization' : basicAuth,
+          'Content-Type': 'application/json',
+        },
+      );
+      if (response.statusCode == 200) {
+        print('Commande envoyée');
+      } else {
+        print('Erreur lors de l\'envoi de la commande : ${response.statusCode}');
+      }
+    }
+
+    return Scaffold(
+      body: Center(
+        child: Container(
+          width: 350,
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children:[
+              ...instance.cartItems.map((e) => CartItem(
+                index: e.id,
+                imageSrc: 'null',
+                title: e.name,
+                price: '${e.price} €',
+                quantity: e.quantity.toString()
+              )).toList(),
+              Padding(
+                padding: EdgeInsets.only(bottom: 20),
                 child: Row(
-                  children: <Widget>[
-                    Container(
-                      height: 100,
-                      width: 100,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage(food['image']!),
-                        ),
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Total',
+                      style: TextStyle(
+                        fontFamily: 'Roboto',
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: <Widget>[
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Text(food['name']!),
-                                Icon(Icons.delete_outline)
-                              ],
-                            ),
-                            Text('\$${food['price']}'),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: <Widget>[
-                                Icon(Icons.remove),
-                                Container(
-                                  color: primaryColor,
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 10.0,
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 3.0,
-                                    horizontal: 12.0,
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.add,
-                                  color: primaryColor,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                    Text(
+                      '${instance.cartTotal} €',
+                      style: TextStyle(
+                        fontFamily: 'Roboto',
                       ),
                     ),
                   ],
                 ),
               ),
+              ElevatedButton(
+                onPressed: () {
+                  postCommand();
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Color(0xFFEEA734),
+                  onPrimary: Colors.white,
+                ),
+                child: Text(
+                  'Valider mon panier',
+                  style: TextStyle(
+                    fontFamily: 'Roboto',
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CartItem extends StatelessWidget {
+  final int index;
+  final String imageSrc;
+  final String title;
+  final String price;
+  final String quantity;
+
+  const CartItem({
+    required this.index,
+    required this.imageSrc,
+    required this.title,
+    required this.price,
+    required this.quantity,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final instance = ShoppingCart.getInstance<FoodCardModel>();
+
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 20),
+      child: Row(
+        children: [
+          // Image.asset(
+          //   imageSrc,
+          //   width: 160,
+          //   height: 150,
+          // ),
+          SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontFamily: 'Roboto',
+                  ),
+                ),
+                Text(
+                  price,
+                  style: TextStyle(
+                    fontFamily: 'Roboto',
+                  ),
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        var item = instance.findItemById(index);
+                        instance.decrementItemQuantity(item);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.grey,
+                        ),
+                        padding: EdgeInsets.all(10),
+                        child: Icon(Icons.remove, color: Colors.white),
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      quantity, // Remplacer par la valeur de la quantité
+                      style: TextStyle(
+                        fontFamily: 'Roboto',
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    GestureDetector(
+                      onTap: () {
+                        var item = instance.findItemById(index);
+                        instance.incrementItemQuantity(item);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFFEEA734),
+                        ),
+                        padding: EdgeInsets.all(10),
+                        child: Icon(Icons.add, color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }
