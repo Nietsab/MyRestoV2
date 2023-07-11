@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:front/util/constants.dart';
 import 'package:http/http.dart' as http;
@@ -44,6 +46,12 @@ class _CardState extends State<Card> {
     ThemeData theme = Theme.of(context);
     Size size = MediaQuery.of(context).size;
 
+    String arrayBufferToBase64(List<int> arrayBuffer) {
+      var bytes = Uint8List.fromList(arrayBuffer);
+      var base64 = base64Encode(bytes);
+      return base64;
+    }
+
     return SingleChildScrollView(
       child: SafeArea(
         child: Column(
@@ -72,6 +80,7 @@ class _CardState extends State<Card> {
               spacing: 10.0,
               runSpacing: 10.0,
               children: foodList.map((product) {
+                var listInt = List<int>.from(product['image']);
                 return InkWell(
                   onTap: () {
                     Navigator.pushNamed(
@@ -87,7 +96,7 @@ class _CardState extends State<Card> {
                       primaryColor: theme.primaryColor,
                       productName: product['name']?.toString() ?? '',
                       productPrice: product['price']?.toString() ?? '',
-                      productUrl: product['image']?.toString() ?? '',
+                      productUrl: arrayBufferToBase64(listInt) ?? '',
                       productId: product['id'] ?? '',
                     ),
                   ),

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:front/app/model/foodCardModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping_cart/shopping_cart.dart';
@@ -48,6 +49,12 @@ class Cart extends StatelessWidget {
       }
     }
 
+    String arrayBufferToBase64(List<int> arrayBuffer) {
+      var bytes = Uint8List.fromList(arrayBuffer);
+      var base64 = base64Encode(bytes);
+      return base64;
+    }
+
     return Scaffold(
       body: Center(
         child: Container(
@@ -62,7 +69,7 @@ class Cart extends StatelessWidget {
             children:[
               ...instance.cartItems.map((e) => CartItem(
                 index: e.id,
-                imageSrc: 'null',
+                imageSrc: e.image,
                 title: e.name,
                 price: '${e.price} €',
                 quantity: e.quantity.toString()
@@ -139,16 +146,21 @@ class CartItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final instance = ShoppingCart.getInstance<FoodCardModel>();
+    Uint8List bytes = base64Decode(imageSrc);
 
     return Container(
       margin: EdgeInsets.symmetric(vertical: 20),
       child: Row(
         children: [
-          // Image.asset(
-          //   imageSrc,
-          //   width: 160,
-          //   height: 150,
-          // ),
+          Container(
+            width: 160,
+            height: 150,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: MemoryImage(bytes),
+              ),
+            )
+          ),
           SizedBox(width: 20),
           Expanded(
             child: Column(

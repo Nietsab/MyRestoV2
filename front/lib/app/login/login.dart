@@ -42,7 +42,6 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         Map<String, dynamic> responseData = jsonDecode(response.body);
         prefs.setString('auth', '$user:$password');
-        print(responseData['admin']);
         prefs.setString('admin', responseData['admin'].toString());
         Navigator.push(context, MaterialPageRoute(builder: (context) => App()));
       } else {

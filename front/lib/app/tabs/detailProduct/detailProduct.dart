@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:front/app/model/foodCardModel.dart';
 import 'package:shopping_cart/shopping_cart.dart';
@@ -9,8 +12,16 @@ class DetailProduct extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final instance = ShoppingCart.getInstance<FoodCardModel>();
+    String arrayBufferToBase64(List<int> arrayBuffer) {
+      var bytes = Uint8List.fromList(arrayBuffer);
+      var base64 = base64Encode(bytes);
+      return base64;
+    }
 
     if (product != null) {
+      var listInt =  List<int>.from(product['image']);
+      var base64 = arrayBufferToBase64(listInt);
+      Uint8List bytes = base64Decode(base64);
 
       return Container(
         width: 400,
@@ -38,12 +49,15 @@ class DetailProduct extends StatelessWidget {
               ),
             ),
             SizedBox(height: 10),
-            // Image.asset(
-            //   product['name'] as String,
-            //   width: 250,
-            //   height: 250,
-            //   fit: BoxFit.cover,
-            // ),
+            Container(
+              height: 250,
+              width: 250,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: MemoryImage(bytes),
+                ),
+              )
+            ),
             SizedBox(height: 10),
             Text(
               'Prix : ${product['price'].toString()} €',
@@ -62,7 +76,7 @@ class DetailProduct extends StatelessWidget {
                 onTap: () {
                   final item = FoodCardModel(
                       name: product['name'],
-                      image: product['url'],
+                      image: product['image'],
                       id: product['id'],
                       price: product['price'],
                   );

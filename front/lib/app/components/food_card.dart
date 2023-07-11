@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:front/app/model/foodCardModel.dart';
 import 'package:shopping_cart/shopping_cart.dart';
@@ -22,6 +25,7 @@ class FoodCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final instance = ShoppingCart.getInstance<FoodCardModel>();
+    Uint8List bytes = base64Decode(productUrl);
 
     return Container(
       width: width,
@@ -36,7 +40,7 @@ class FoodCard extends StatelessWidget {
                 height: 140.0,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage(productUrl),
+                    image: MemoryImage(bytes),
                   ),
                 ),
               ),
@@ -72,7 +76,12 @@ class FoodCard extends StatelessWidget {
                   child: IconButton(
                     icon: Icon(Icons.add, size: 17.0, color: primaryColor),
                     onPressed: () {
-                      final item = FoodCardModel(name: productName, image: productUrl, id: productId, price: double.parse(productPrice));
+                      final item = FoodCardModel(
+                          name: productName,
+                          image: productUrl,
+                          id: productId,
+                          price: double.parse(productPrice)
+                      );
                       instance.addItemToCart(item);
                     },
                   ),
@@ -86,7 +95,7 @@ class FoodCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
-                  '\$ $productPrice',
+                  '$productPrice \€',
                   style: TextStyle(
                     fontSize: 13.0,
                   ),

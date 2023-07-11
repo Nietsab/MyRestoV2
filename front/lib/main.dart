@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: "Cera Pro",
         primaryColor: Color(0xFFeea734),
+        scaffoldBackgroundColor: Color(0xFFDFD4B4)
       ),
       routes: routes,
     );
