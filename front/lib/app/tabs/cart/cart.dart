@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:front/app/model/foodCardModel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shopping_cart/shopping_cart.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../../util/constants.dart';
+import '../../login/login.dart';
 
 class Cart extends StatelessWidget {
   final instance = ShoppingCart.getInstance<FoodCardModel>();
@@ -25,10 +27,11 @@ class Cart extends StatelessWidget {
 
 
     void postCommand() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance() as SharedPreferences;
+
       var cartItems = convertFoodCardModelToMap();
-      print(jsonEncode(cartItems));
       final url = Uri.parse(ApiConstants.baseUrl + ApiConstants.postCommand);
-      String basicAuth = 'Basic ${base64Encode(utf8.encode('admin:admin'))}';
+      String basicAuth = 'Basic ${base64Encode(utf8.encode('${prefs.get('auth')}'))}';
 
       final response = await http.post(
         url,
@@ -86,8 +89,18 @@ class Cart extends StatelessWidget {
                 ),
               ),
               ElevatedButton(
-                onPressed: () {
-                  postCommand();
+                onPressed: () async {
+                  if (instance.cartItems.length > 0) {
+                    SharedPreferences prefs = await SharedPreferences.getInstance() as SharedPreferences;
+                    print(prefs.get('auth'));
+                    if (prefs.get('auth') != null) {
+                      postCommand();
+                    } else {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                    }
+                  } else {
+                    return null;
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   primary: Color(0xFFEEA734),

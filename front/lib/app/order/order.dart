@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:front/util/constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Order extends StatefulWidget {
   @override
@@ -18,8 +19,10 @@ class _OrderState extends State<Order> {
   }
 
   Future<void> fetchOrderItems() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance() as SharedPreferences;
+
     final url = Uri.parse(ApiConstants.baseUrl + ApiConstants.getCommand);
-    String basicAuth = 'Basic ' + base64Encode(utf8.encode('admin:admin'));
+    String basicAuth = 'Basic ' + base64Encode(utf8.encode('${prefs.getString('auth')}'));
     final response = await http.get(url, headers : {
       'Authorization' : basicAuth,
       'Content-Type' : 'application/json',
@@ -191,8 +194,10 @@ class OrderItem extends StatelessWidget {
   });
 
   void closeOrder(String orderId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance() as SharedPreferences;
+
     final url = Uri.parse(ApiConstants.baseUrl + ApiConstants.postCommand + '/${orderNumber}/send');
-    String basicAuth = 'Basic ' + base64Encode(utf8.encode('admin:admin'));
+    String basicAuth = 'Basic ' + base64Encode(utf8.encode('${prefs.getString('auth')}'));
 
     final response = await http.post(url, headers : {
       'Authorization' : basicAuth,
