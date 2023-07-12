@@ -1,11 +1,7 @@
 node {
     stage("Clone the project") {
         git branch: 'master', url: 'https://github.com/Nietsab/MyRestoV2.git'
-        sh "cd myrestoV2/back"
-    }
-
-    stage("connect docker") {
-        sh "docker -v"
+        sh "cd ./back"
     }
 
     stage("Compilation") {
