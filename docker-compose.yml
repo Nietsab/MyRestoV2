@@ -12,9 +12,3 @@ services:
     extends:
      file: ./back/docker-compose.yml
      service: adminer
-
-  front:
-    build:
-      context: front
-    ports:
-      - 8080:80
