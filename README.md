@@ -2,16 +2,12 @@
 
 ## Pré-requis
 - Docker
-
-## Accès en ligne
-- Se rendre sur cette URL http://holgar.duckdns.org/
+- Flutter 
 
 ## Installation en local
 
-- Il faut simplement faire un `docker-compose up -d` sur le repertoire courant => Cela va lancer le conteneur du Front et du Back et donc la BDD qui va avec.
-
-- Pour accéder ensuite à l'application il suffit de : 
-    - Se rendre sur cette URL http://localhost:8080/
+- Il faut simplement faire un `docker-compose up -d` sur le repertoire courant => Cela va lancer le conteneur Back et donc la BDD qui va avec.
+- Pour lancer l'application mobile : il faut faire un `flutter run`
 
 ## Les comptes disponibles en local : 
 
