@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:front/app/tabs/card/card.dart' as CardFood;
 
 class Home extends StatelessWidget {
   @override
@@ -42,13 +43,12 @@ class Home extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: 20),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      // Action à effectuer lors du clic sur le bouton
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => CardFood.Card()));
                     },
                     style: ElevatedButton.styleFrom(
                       primary: Color(0xFFEEA734),
@@ -57,10 +57,11 @@ class Home extends StatelessWidget {
                       ),
                     ),
                     child: Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(10),
+                      width: 140,
+                      padding: EdgeInsets.all(8),
                       child: Text(
                         'Voir la carte',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,
                           fontFamily: 'Roboto',

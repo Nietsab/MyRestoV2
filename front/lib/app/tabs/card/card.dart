@@ -52,58 +52,61 @@ class _CardState extends State<Card> {
       return base64;
     }
 
-    return SingleChildScrollView(
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 20.0,
-                left: 20.0,
-                right: 20.0,
+    return Scaffold(
+      body:
+        SingleChildScrollView(
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 20.0,
+                  left: 20.0,
+                  right: 20.0,
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 20.0,
-                bottom: 10.0,
-                top: 35.0,
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: 20.0,
+                  bottom: 10.0,
+                  top: 35.0,
+                ),
+                child: Text(
+                  'Nos produits',
+                  style: TextStyle(fontSize: 21.0),
+                ),
               ),
-              child: Text(
-                'Nos produits',
-                style: TextStyle(fontSize: 21.0),
-              ),
-            ),
-            Wrap(
-              alignment: WrapAlignment.start,
-              spacing: 10.0,
-              runSpacing: 10.0,
-              children: foodList.map((product) {
-                var listInt = List<int>.from(product['image']);
-                return InkWell(
-                  onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      'detailProduct',
-                      arguments: product,
-                    );
-                  },
-                  child: Hero(
-                    tag: 'detail_food${foodList.indexOf(product)}',
-                    child: FoodCard(
-                      width: (size.width - 50.0) / 2, // Ajustez la largeur selon vos besoins
-                      primaryColor: theme.primaryColor,
-                      productName: product['name']?.toString() ?? '',
-                      productPrice: product['price']?.toString() ?? '',
-                      productUrl: arrayBufferToBase64(listInt) ?? '',
-                      productId: product['id'] ?? '',
+              Wrap(
+                alignment: WrapAlignment.start,
+                spacing: 10.0,
+                runSpacing: 10.0,
+                children: foodList.map((product) {
+                  var listInt = List<int>.from(product['image']);
+                  return InkWell(
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        'detailProduct',
+                        arguments: product,
+                      );
+                    },
+                    child: Hero(
+                      tag: 'detail_food${foodList.indexOf(product)}',
+                      child: FoodCard(
+                        width: (size.width - 50.0) / 2, // Ajustez la largeur selon vos besoins
+                        primaryColor: theme.primaryColor,
+                        productName: product['name']?.toString() ?? '',
+                        productPrice: product['price']?.toString() ?? '',
+                        productUrl: arrayBufferToBase64(listInt) ?? '',
+                        productId: product['id'] ?? '',
+                      ),
                     ),
-                  ),
-                );
-              },).toList()
-            ),
-          ],
+                  );
+                },).toList()
+              ),
+            ],
+          ),
         ),
       ),
     );

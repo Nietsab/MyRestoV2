@@ -1,0 +1,16 @@
+node {
+    stage("Clone the project") {
+        git branch: 'master', url: 'https://github.com/Nietsab/MyRestoV2.git'
+        sh "cd MyRestoV2/back"
+    }
+
+    stage("Compilation") {
+        sh "./mvnw clean install -DskipTests"
+    }
+
+    stage("Tests") {
+        stage("Running unit tests") {
+            sh "./mvnw test -Punit"
+        }
+    }
+}

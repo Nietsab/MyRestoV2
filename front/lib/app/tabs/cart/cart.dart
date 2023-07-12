@@ -44,6 +44,7 @@ class Cart extends StatelessWidget {
       );
       if (response.statusCode == 200) {
         print('Commande envoyée');
+        instance.clearCart();
       } else {
         print('Erreur lors de l\'envoi de la commande : ${response.statusCode}');
       }
@@ -185,6 +186,7 @@ class CartItem extends StatelessWidget {
                       onTap: () {
                         var item = instance.findItemById(index);
                         instance.decrementItemQuantity(item);
+                        instance.refreshCart();
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -207,6 +209,7 @@ class CartItem extends StatelessWidget {
                       onTap: () {
                         var item = instance.findItemById(index);
                         instance.incrementItemQuantity(item);
+                        instance.refreshCart();
                       },
                       child: Container(
                         decoration: BoxDecoration(

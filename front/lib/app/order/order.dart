@@ -110,7 +110,6 @@ class _OrderState extends State<Order> {
                 ),
               ),
               SizedBox(height: 40),
-              SizedBox(height: 40),
               Container(
                 width: 325,
                 child: Card(
@@ -229,7 +228,6 @@ class OrderItem extends StatelessWidget {
                     closeOrder(orderNumber.toString() as String);
                 }
             ) : Container(),
-            SizedBox(height: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: items.map((item) => Text(
