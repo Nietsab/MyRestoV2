@@ -1,14 +1,14 @@
-- name: install git 
-  package: 
+- name: install git
+  package:
     name: git
     state: present
 
 - name: clone repo git
   ansible.builtin.git:
     repo: https://github.com/Nietsab/MyRestoV2.git
-    dest: back/src/myresto
+    dest: /srv/myresto
 
 - name: launch container
   community.docker.docker_compose:
-    project_src: back/src/myresto
+    project_src: /srv/myresto
     state: present

@@ -4,6 +4,10 @@ node {
         sh "cd myrestoV2/back"
     }
 
+    stage("connect docker") {
+        sh "docker -v"
+    }
+
     stage("Compilation") {
         sh "./mvnw clean install -DskipTests"
     }
