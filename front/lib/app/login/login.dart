@@ -23,7 +23,6 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     void postUserLogin(String user, String password) async {
@@ -50,6 +49,10 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Connexion'),
+        backgroundColor: Color(0xFFEEA734),
+      ),
       body: Container(
         height: double.infinity,
         decoration: BoxDecoration(

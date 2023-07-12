@@ -8,123 +8,200 @@ import 'package:http/http.dart' as http;
 import '../../../util/constants.dart';
 import '../../login/login.dart';
 
-class Cart extends StatelessWidget {
+class Cart extends StatefulWidget {
+  @override
+  _CartState createState() => _CartState();
+}
+
+class _CartState extends State<Cart> {
   final instance = ShoppingCart.getInstance<FoodCardModel>();
+  late SharedPreferences prefs;
+  bool isCommandSent = false;
+  bool isError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchSharedPreferences();
+  }
+
+  Future<void> fetchSharedPreferences() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
+  List<Map<String, dynamic>> convertFoodCardModelToMap() {
+    List<Map<String, dynamic>> cartItems = [];
+    for (var item in instance.cartItems.toList()) {
+      cartItems.add({
+        'id': item.id,
+        'name': item.name,
+        'price': item.price,
+        'quantity': item.quantity,
+      });
+    }
+    return cartItems;
+  }
+
+  Future<void> postCommand() async {
+    var cartItems = convertFoodCardModelToMap();
+    final url = Uri.parse(ApiConstants.baseUrl + ApiConstants.postCommand);
+    String basicAuth = 'Basic ${base64Encode(utf8.encode('${prefs.get('auth')}'))}';
+
+    final response = await http.post(
+      url,
+      body: jsonEncode(cartItems),
+      headers: {
+        'Authorization': basicAuth,
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 200) {
+      print('Commande envoyée');
+      instance.clearCart();
+      setState(() {
+        isCommandSent = true;
+        isError = false;
+      }); // Rafraîchir le composant
+    } else {
+      print('Erreur lors de l\'envoi de la commande : ${response.statusCode}');
+      setState(() {
+        isCommandSent = true;
+        isError = true;
+      }); // Rafraîchir le composant
+    }
+  }
+
+  String arrayBufferToBase64(List<int> arrayBuffer) {
+    var bytes = Uint8List.fromList(arrayBuffer);
+    var base64 = base64Encode(bytes);
+    return base64;
+  }
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> convertFoodCardModelToMap() {
-      List<Map<String, dynamic>> cartItems = [];
-      for (var item in instance.cartItems.toList()) {
-        cartItems.add({
-          'id': item.id,
-          'name': item.name,
-          'price': item.price,
-          'quantity': item.quantity,
-        });
-      }
-      return cartItems;
-    }
-
-
-    void postCommand() async {
-      SharedPreferences prefs = await SharedPreferences.getInstance() as SharedPreferences;
-
-      var cartItems = convertFoodCardModelToMap();
-      final url = Uri.parse(ApiConstants.baseUrl + ApiConstants.postCommand);
-      String basicAuth = 'Basic ${base64Encode(utf8.encode('${prefs.get('auth')}'))}';
-
-      final response = await http.post(
-        url,
-        body: jsonEncode(cartItems),
-        headers: {
-          'Authorization' : basicAuth,
-          'Content-Type': 'application/json',
-        },
-      );
-      if (response.statusCode == 200) {
-        print('Commande envoyée');
-        instance.clearCart();
-      } else {
-        print('Erreur lors de l\'envoi de la commande : ${response.statusCode}');
-      }
-    }
-
-    String arrayBufferToBase64(List<int> arrayBuffer) {
-      var bytes = Uint8List.fromList(arrayBuffer);
-      var base64 = base64Encode(bytes);
-      return base64;
-    }
-
-    return Scaffold(
-      body: Center(
-        child: Container(
-          width: 350,
-          padding: EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(5),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children:[
-              ...instance.cartItems.map((e) => CartItem(
-                index: e.id,
-                imageSrc: e.image,
-                title: e.name,
-                price: '${e.price} €',
-                quantity: e.quantity.toString()
-              )).toList(),
-              Padding(
-                padding: EdgeInsets.only(bottom: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return FutureBuilder<SharedPreferences>(
+      future: SharedPreferences.getInstance(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          prefs = snapshot.data!;
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Panier'),
+              backgroundColor: Color(0xFFEEA734),
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    if (prefs.getString('auth') != null && prefs.getString('admin') != null) {
+                      prefs.remove('auth');
+                      prefs.remove('admin');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                      );
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                      );
+                    }
+                  },
+                  icon: Text(
+                    prefs.getString('auth') != null ? 'Se déconnecter' : 'Se connecter',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  iconSize: 120,
+                ),
+              ],
+            ),
+            body: Center(
+              child: Container(
+                width: 350,
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      'Total',
-                      style: TextStyle(
-                        fontFamily: 'Roboto',
-                        fontWeight: FontWeight.bold,
+                    ...instance.cartItems.map((e) => CartItem(
+                      index: e.id,
+                      imageSrc: e.image,
+                      title: e.name,
+                      price: '${e.price} €',
+                      quantity: e.quantity.toString(),
+                      refreshCart: () {
+                        setState(() {}); // Rafraîchir le composant
+                      },
+                    )),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Total',
+                            style: TextStyle(
+                              fontFamily: 'Roboto',
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            '${instance.cartTotal} €',
+                            style: TextStyle(
+                              fontFamily: 'Roboto',
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Text(
-                      '${instance.cartTotal} €',
-                      style: TextStyle(
-                        fontFamily: 'Roboto',
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (instance.cartItems.length > 0) {
+                          if (prefs.getString('auth') != null) {
+                            await postCommand();
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => LoginPage()),
+                            );
+                          }
+                        } else {
+                          return null;
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Color(0xFFEEA734),
+                        onPrimary: Colors.white,
+                      ),
+                      child: Text(
+                        'Valider mon panier',
+                        style: TextStyle(
+                          fontFamily: 'Roboto',
+                        ),
                       ),
                     ),
+                    if (isCommandSent)
+                      Text(
+                        isError ? 'Une erreur serveur est survenue' : 'La commande a été envoyée avec succès',
+                        style: TextStyle(
+                          fontFamily: 'Roboto',
+                          color: isError ? Colors.red : Colors.green,
+                        ),
+                      ),
                   ],
                 ),
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  if (instance.cartItems.length > 0) {
-                    SharedPreferences prefs = await SharedPreferences.getInstance() as SharedPreferences;
-                    print(prefs.get('auth'));
-                    if (prefs.get('auth') != null) {
-                      postCommand();
-                    } else {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
-                    }
-                  } else {
-                    return null;
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Color(0xFFEEA734),
-                  onPrimary: Colors.white,
-                ),
-                child: Text(
-                  'Valider mon panier',
-                  style: TextStyle(
-                    fontFamily: 'Roboto',
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+            ),
+          );
+        } else {
+          return Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+      },
     );
   }
 }
@@ -135,6 +212,7 @@ class CartItem extends StatelessWidget {
   final String title;
   final String price;
   final String quantity;
+  final VoidCallback refreshCart;
 
   const CartItem({
     required this.index,
@@ -142,6 +220,7 @@ class CartItem extends StatelessWidget {
     required this.title,
     required this.price,
     required this.quantity,
+    required this.refreshCart,
   });
 
   @override
@@ -154,14 +233,13 @@ class CartItem extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 160,
-            height: 150,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: MemoryImage(bytes),
-              ),
-            )
-          ),
+              width: 160,
+              height: 150,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: MemoryImage(bytes),
+                ),
+              )),
           SizedBox(width: 20),
           Expanded(
             child: Column(
@@ -186,7 +264,7 @@ class CartItem extends StatelessWidget {
                       onTap: () {
                         var item = instance.findItemById(index);
                         instance.decrementItemQuantity(item);
-                        instance.refreshCart();
+                        refreshCart(); // Mettre à jour le composant parent
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -199,7 +277,7 @@ class CartItem extends StatelessWidget {
                     ),
                     SizedBox(width: 10),
                     Text(
-                      quantity, // Remplacer par la valeur de la quantité
+                      quantity,
                       style: TextStyle(
                         fontFamily: 'Roboto',
                       ),
@@ -209,7 +287,7 @@ class CartItem extends StatelessWidget {
                       onTap: () {
                         var item = instance.findItemById(index);
                         instance.incrementItemQuantity(item);
-                        instance.refreshCart();
+                        refreshCart(); // Mettre à jour le composant parent
                       },
                       child: Container(
                         decoration: BoxDecoration(

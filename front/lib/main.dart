@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Color(0xFFeea734),
         scaffoldBackgroundColor: Color(0xFFDFD4B4)
       ),
+      debugShowCheckedModeBanner: false,
       routes: routes,
     );
   }

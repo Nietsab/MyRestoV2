@@ -66,9 +66,10 @@ class _AppState extends State<App> {
               Tab(
                 icon: Icon(Icons.shopping_cart, size: 28),
               ),
-              Tab(
-                icon: Icon(Icons.document_scanner, size: 28),
-              ),
+              if (isAdmin == 'true') // Condition pour afficher le logo scanner uniquement si admin = true
+                Tab(
+                  icon: Icon(Icons.document_scanner, size: 28),
+                ),
             ],
           ),
         ),
